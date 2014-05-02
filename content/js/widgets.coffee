@@ -13,6 +13,7 @@ class window.Controls.chart extends window.Control
             chart:
                 renderTo: @dom
                 type: @properties.type
+                backgroundColor: 'rgb(250, 250, 250)'
             title:
                 text: @properties.title
             subtitle:
