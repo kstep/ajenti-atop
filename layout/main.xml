@@ -22,13 +22,54 @@
             }]"
             width="300"
             height="200"
-            bind="cpustats"
-            bindtransform="lambda s: map(lambda s: [
+            bind="stats"
+            bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
                 s.sys * 1.0 / s.tps / s.ncpu,
                 s.usr * 1.0 / s.tps / s.ncpu,
                 s.wait * 1.0 / s.tps / s.ncpu
-                ], s)"
+                ])(s['CPU'][0]), s)"
+            />
+        <chart
+            title="Disk operations"
+            xaxis="[{
+                'type': 'datetime'
+            }]"
+            yaxis="[{}]"
+            series="[{
+                'name': 'Reads'
+            }, {
+                'name': 'Writes'
+            }]"
+            width="300"
+            height="200"
+            bind="stats"
+            bindtransform="lambda s: map(lambda s: (lambda s: [
+                s.epoch * 1000,
+                s.reads, s.writes
+                ])(s['DSK'][0]), s)"
+            />
+        <chart
+            type="spline"
+            title="Load average"
+            xaxis="[{
+                'type': 'datetime'
+            }]"
+            yaxis="[{}]"
+            series="[{
+                'name': '1 min'
+            }, {
+                'name': '5 min'
+            }, {
+                'name': '15 min'
+            }]"
+            width="300"
+            height="200"
+            bind="stats"
+            bindtransform="lambda s: map(lambda s: (lambda s: [
+                s.epoch * 1000,
+                s.la1, s.la5, s.la15
+                ])(s['CPL'][0]), s)"
             />
     </pad>
 </body>

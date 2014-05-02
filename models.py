@@ -97,9 +97,9 @@ class PAG(ATOP):
             }
 
 class DSK(ATOP):
-    _fields = ['name', 'iotime', 'reads', 'sread', 'writes', 'swrite']
+    _fields = ATOP._fields + ['name', 'iotime', 'reads', 'sread', 'writes', 'swrite']
     _casts = {
-            'name': int,
+            'name': str,
             'iotime': int,
             'reads': int,
             'sread': int,

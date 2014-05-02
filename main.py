@@ -26,15 +26,36 @@ class ATop(SectionPlugin):
         self.icon = 'signal'
         self.category = _('Software')
 
-        self.cpustats = []
+        self.stats = []
 
         self.append(self.ui.inflate('atop:main'))
         self.binder = Binder(self, self.find('main'))
 
+    @staticmethod
+    def parse_atop(lines):
+        sample = {}
+
+        for line in lines:
+            if line == 'RESET\n':
+                sample = {}
+
+            elif line == 'SEP\n':
+                yield sample
+                sample = {}
+
+            else:
+                point = ATOP.parse(line)
+                sample.setdefault(point.__class__.__name__, []).append(point)
+
     @on('loadlog', 'click')
     def loadlog(self):
         logfile = self.find('logfile').value
-        data, _ = Popen(['/usr/bin/atop', '-r', logfile, '-P', 'CPU'], stdout=PIPE).communicate()
-        self.cpustats = [ATOP.parse(line) for line in data.splitlines() if line not in ('SEP', 'RESET')][1:]
+        sections = ['CPU', 'DSK', 'CPL']
+        atop = Popen(['/usr/bin/atop', '-r', logfile, '-P', ','.join(sections)], stdout=PIPE)
+
+        stats = self.parse_atop(line for line in atop.stdout.readlines())
+        next(stats)
+        self.stats = list(stats)
+
         self.binder.populate()
 
