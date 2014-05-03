@@ -62,9 +62,12 @@ class ATop(SectionPlugin):
         sections = ['CPU', 'DSK', 'CPL']
         atop = Popen(['/usr/bin/atop', '-r', logfile, '-P', ','.join(sections)], stdout=PIPE)
 
-        stats = self.parse_atop(atop.stdout.readlines())
-        next(stats)
-        self.stats = list(stats)
+        try:
+            stats = self.parse_atop(atop.stdout.readlines())
+            next(stats)
+            self.stats = list(stats)
+        except StopIteration:
+            self.context.notify('error', 'Not enough atop data to load')
 
         self.binder.populate()
 
