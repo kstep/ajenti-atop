@@ -47,7 +47,7 @@ class ATop(SectionPlugin):
                 sample = {}
 
             else:
-                point = ATOP.parse(line)
+                point = ATOP(line)
                 name, key = point.__class__.__name__, point.key
                 if key is None:
                     sample[name] = point

@@ -1,4 +1,5 @@
 from ajenti.plugins.models.api import *  # noqa
+from itertools import izip
 
 brackets = lambda n: str(n)[1:-1]
 boolflag = lambda y: y == 'y'
@@ -23,17 +24,16 @@ class ATOP(Model):
     def key(self):
         return None
 
-    @classmethod
-    def parse(cls, line):
+    def __new__(cls, line=None):
         parts = line.split()
         label = parts.pop(0)
 
         if label in ('RESET', 'SEP'):
-            return
+            return None
 
         label_cls = cls._labels[label]
-        data = dict(zip(label_cls._fields, parts))
-        return label_cls(**data)
+        data = izip(label_cls._fields, parts)
+        return Model.__new__(label_cls, data)
 
 
 class CPU(ATOP):
