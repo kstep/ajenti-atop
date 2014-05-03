@@ -67,6 +67,28 @@
                 ], s)"
             />
         <chart
+            title="Memory consumtion"
+            xaxis="[{
+                'type': 'datetime'
+                }]"
+            yaxis="[{
+                'min': 0
+                }]"
+            series="[{
+                'name': 'Memory'
+            }, {
+                'name': 'Swap'
+            }]"
+            width="100%"
+            height="300"
+            bind="stats"
+            bindtransform="lambda s: map(lambda s: (lambda m, s: [
+                s.epoch * 1000,
+                m.page * (m.phys - m.free - m.cache - m.buffer),
+                s.page * (s.swap - s.free)
+                ])(s['MEM'], s['SWP']), s)"
+            />
+        <chart
             title="Network activity"
             xaxis="[{
                 'type': 'datetime'

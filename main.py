@@ -22,6 +22,8 @@ class Chart(UIElement):
 
 @plugin
 class ATop(SectionPlugin):
+    METRICS = ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP']
+
     def init(self):
         self.title = 'ATop'
         self.icon = 'signal'
@@ -71,7 +73,7 @@ class ATop(SectionPlugin):
             return
 
         logfile = self.find('logfile').value
-        atop = self.atop(logfile, 'CPU', 'DSK', 'CPL', 'NET')
+        atop = self.atop(logfile, *self.METRICS)
 
         try:
             stats = self.parse_atop(iter(atop.stdout.readline, ''))
@@ -95,7 +97,7 @@ class ATop(SectionPlugin):
 
     _stream = False
     def worker(self):
-        atop = self.atop(None, 'CPU', 'DSK', 'CPL', 'NET')
+        atop = self.atop(None, *self.METRICS)
         samples = self.parse_atop(iter(atop.stdout.readline, ''))
         next(samples)
 
