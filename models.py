@@ -19,6 +19,10 @@ class ATOP(Model):
             Model.__metaclass__.__init__(cls, name, bases, attrs)
             cls._labels[name] = cls
 
+    @property
+    def key(self):
+        return None
+
     @classmethod
     def parse(cls, line):
         parts = line.split()
@@ -107,6 +111,10 @@ class DSK(ATOP):
             'swrite': int,
             }
 
+    @property
+    def key(self):
+        return self.name
+
 class MDD(DSK):
     pass
 
@@ -126,6 +134,10 @@ class NET(ATOP):
             'ipfwd': int,
             }
 
+    @property
+    def key(self):
+        return self.label
+
 class NETIF(ATOP):
     _fields = ATOP._fields + ['name', 'prcv', 'brcv', 'psnd', 'bsnd', 'speed', 'mode']
     _casts = {
@@ -138,6 +150,10 @@ class NETIF(ATOP):
             'mode': compose(int, ['half', 'full'].__getitem__)
             }
 
+    @property
+    def key(self):
+        return self.name
+
 class PROC(ATOP):
     _fields = ATOP._fields + ['pid', 'name', 'state']
     _casts = {
@@ -145,6 +161,10 @@ class PROC(ATOP):
             'name': brackets,
             'state': str,
             }
+
+    @property
+    def key(self):
+        return self.pid
 
 class PRG(PROC):
     _fields = PROC._fields + ['ruid', 'rgid', 'tgid', 'thrn', 'code', 'start', 'fname', 'ppid', 'thrr', 'thri', 'thru', 'euid', 'egid', 'suid', 'sgid', 'fuid', 'fgid', 'eta']
