@@ -5,6 +5,7 @@ from ajenti.ui.binder import Binder
 from ajenti.ui import on, p, UIElement
 from ajenti.plugins.atop.models import ATOP
 from subprocess import Popen, PIPE
+from datetime import datetime
 
 @p('type', type=str, default='line')
 @p('title', type=str)
@@ -29,7 +30,9 @@ class ATop(SectionPlugin):
         self.stats = []
 
         self.append(self.ui.inflate('atop:main'))
+        self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
         self.binder = Binder(self, self.find('main'))
+        self.loadlog()
 
     @staticmethod
     def parse_atop(lines):
@@ -53,7 +56,7 @@ class ATop(SectionPlugin):
         sections = ['CPU', 'DSK', 'CPL']
         atop = Popen(['/usr/bin/atop', '-r', logfile, '-P', ','.join(sections)], stdout=PIPE)
 
-        stats = self.parse_atop(line for line in atop.stdout.readlines())
+        stats = self.parse_atop(atop.stdout.readlines())
         next(stats)
         self.stats = list(stats)
 
