@@ -35,37 +35,41 @@
                 ])(s['CPU']), s)"
             />
 
-        <formline text="{Disk device}">
-            <hc>
-                <dropdown id="disk_name" bind:values="stats" bind:labels="stats"
-                    bindtransform="lambda s: list(reduce(
-                        lambda a, s: a.union(s),
-                        map(lambda s: s['DSK'].keys(), s),
-                        set()))" />
-                <button id="selectdisk" style="mini" icon="ok" text="{Select}" />
-            </hc>
-        </formline>
-        <chart
-            title="Disk operations"
-            xaxis="[{
-                'type': 'datetime'
-            }]"
-            yaxis="[{
-                'min': 0
-            }]"
-            series="[{
-                'name': 'Reads'
-            }, {
-                'name': 'Writes'
-            }]"
-            width="100%"
-            height="300"
-            bind="disk_stats"
-            bindtransform="lambda s: map(lambda s: [
-                s.epoch * 1000,
-                s.reads, s.writes
-                ], s)"
-            />
+        <bind:collection bind="stats" values="
+            lambda samples: map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
+                reduce(
+                    lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
+                    map(lambda sample: sample['DSK'], samples),
+                    dict()
+                ).iteritems())
+                ">
+            <tabs bind="__items"></tabs>
+            <bind:template>
+                <tab bind:title="name">
+                    <chart
+                        title="Disk operations"
+                        xaxis="[{
+                            'type': 'datetime'
+                        }]"
+                        yaxis="[{
+                            'min': 0
+                        }]"
+                        series="[{
+                            'name': 'Reads'
+                        }, {
+                            'name': 'Writes'
+                        }]"
+                        width="100%"
+                        height="300"
+                        bind="samples"
+                        bindtransform="lambda s: map(lambda s: [
+                            s.epoch * 1000,
+                            s.reads, s.writes
+                            ], s)"
+                        />
+                </tab>
+            </bind:template>
+        </bind:collection>
         <chart
             title="Memory consumtion"
             xaxis="[{

@@ -30,7 +30,6 @@ class ATop(SectionPlugin):
         self.category = _('Software')
 
         self.stats = []
-        self.disk_stats = []
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
@@ -83,16 +82,6 @@ class ATop(SectionPlugin):
             self.context.notify('error', 'Not enough atop data to load')
 
         else:
-            self.selectdisk()
-
-    @on('selectdisk', 'click')
-    def selectdisk(self):
-        try:
-            disk_name = self.find('disk_name').value
-            self.disk_stats = map(lambda s: s['DSK'][disk_name], self.stats)
-        except KeyError:
-            self.context.notify('info', 'Please select a disk to show stats')
-        finally:
             self.binder.populate()
 
     _stream = False
@@ -106,11 +95,9 @@ class ATop(SectionPlugin):
                 break
 
             self.stats.append(sample)
-            self.disk_stats.append(sample['DSK']['sda'])
 
             if len(self.stats) > 144:
                 self.stats.pop(0)
-                self.disk_stats.pop(0)
 
             self.binder.populate()
 
@@ -122,8 +109,6 @@ class ATop(SectionPlugin):
 
         if self._stream:
             self.stats = []
-            self.disk_stats = []
-
             self.context.session.spawn(self.worker)
 
         self.find('livestream').pressed = self._stream
