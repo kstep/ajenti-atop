@@ -1,7 +1,7 @@
 <body>
     <pad id="main">
         <hc>
-            <pathbox id="logfile" value="/var/log/atop/atop_20140424" />
+            <pathbox id="logfile" value="" />
             <button text="{Load}" icon="load" style="mini" id="loadlog" />
         </hc>
         <chart
