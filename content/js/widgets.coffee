@@ -2,9 +2,9 @@ class window.Controls.chart extends window.Control
     createDom: () ->
         w = @_int_to_px(@properties.width)
         h = @_int_to_px(@properties.height)
-        '''
+        """
         <div style="width: #{w}; height: #{h};"></div>
-        '''
+        """
 
     setupDom: (dom) ->
         super(dom)
