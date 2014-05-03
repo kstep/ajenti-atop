@@ -9,6 +9,10 @@ class window.Controls.chart extends window.Control
     setupDom: (dom) ->
         super(dom)
 
+        window.Highcharts.setOptions
+            global:
+                useUTC: false
+
         @chart ||= new window.Highcharts.Chart
             chart:
                 renderTo: @dom
