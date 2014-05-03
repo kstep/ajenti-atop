@@ -31,6 +31,8 @@ class ATop(SectionPlugin):
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
+
+    def on_first_page_load(self):
         self.binder = Binder(self, self.find('main'))
         self.loadlog()
 
