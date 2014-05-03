@@ -22,8 +22,8 @@
             }, {
                 'name': 'Wait'
             }]"
-            width="300"
-            height="200"
+            width="100%"
+            height="300"
             bind="stats"
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
@@ -43,8 +43,8 @@
             }, {
                 'name': 'Writes'
             }]"
-            width="300"
-            height="200"
+            width="100%"
+            height="300"
             bind="stats"
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
@@ -65,8 +65,8 @@
             }, {
                 'name': '15 min'
             }]"
-            width="300"
-            height="200"
+            width="100%"
+            height="300"
             bind="stats"
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
