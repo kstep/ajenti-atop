@@ -30,7 +30,7 @@ class ATOP(Model):
             if label in ('RESET', 'SEP'):
                 return None
 
-            data_cls = cls._labels[label]
+            data_cls = cls._labels[label].delegate(parts)
             data = izip(data_cls._fields, parts)
             self = Model.__metaclass__.__call__(data_cls, data)
             return self
@@ -38,6 +38,10 @@ class ATOP(Model):
     @property
     def key(self):
         return None
+
+    @classmethod
+    def delegate(cls, parts):
+        return cls
 
 
 class CPU(ATOP):
@@ -143,11 +147,11 @@ class NET(ATOP):
             'ipfwd': int,
             }
 
-    @property
-    def key(self):
-        return self.label
+    @classmethod
+    def delegate(cls, parts):
+        return cls if parts[5] == 'upper' else net
 
-class NETIF(ATOP):
+class net(ATOP):
     _fields = ATOP._fields + ['name', 'prcv', 'brcv', 'psnd', 'bsnd', 'speed', 'mode']
     _casts = {
             'name': str,
