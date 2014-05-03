@@ -20,20 +20,24 @@ class ATOP(Model):
             Model.__metaclass__.__init__(cls, name, bases, attrs)
             cls._labels[name] = cls
 
+        def __call__(cls, line=None):
+            if line is None:
+                return None
+
+            parts = line.split()
+            label = parts.pop(0)
+
+            if label in ('RESET', 'SEP'):
+                return None
+
+            data_cls = cls._labels[label]
+            data = izip(data_cls._fields, parts)
+            self = Model.__metaclass__.__call__(data_cls, data)
+            return self
+
     @property
     def key(self):
         return None
-
-    def __new__(cls, line=None):
-        parts = line.split()
-        label = parts.pop(0)
-
-        if label in ('RESET', 'SEP'):
-            return None
-
-        label_cls = cls._labels[label]
-        data = izip(label_cls._fields, parts)
-        return Model.__new__(label_cls, data)
 
 
 class CPU(ATOP):
