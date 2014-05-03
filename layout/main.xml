@@ -28,7 +28,7 @@
                 s.sys * 1.0 / s.tps / s.ncpu,
                 s.usr * 1.0 / s.tps / s.ncpu,
                 s.wait * 1.0 / s.tps / s.ncpu
-                ])(s['CPU'][0]), s)"
+                ])(s['CPU']), s)"
             />
         <chart
             title="Disk operations"
@@ -47,7 +47,7 @@
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
                 s.reads, s.writes
-                ])(s['DSK'][0]), s)"
+                ])(s['DSK']['sda']), s)"
             />
         <chart
             type="spline"
@@ -69,7 +69,7 @@
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
                 s.la1, s.la5, s.la15
-                ])(s['CPL'][0]), s)"
+                ])(s['CPL']), s)"
             />
     </pad>
 </body>

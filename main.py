@@ -48,7 +48,11 @@ class ATop(SectionPlugin):
 
             else:
                 point = ATOP.parse(line)
-                sample.setdefault(point.__class__.__name__, []).append(point)
+                name, key = point.__class__.__name__, point.key
+                if key is None:
+                    sample[name] = point
+                else:
+                    sample.setdefault(name, {})[key] = point
 
     @on('loadlog', 'click')
     def loadlog(self):
