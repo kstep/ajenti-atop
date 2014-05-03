@@ -48,7 +48,9 @@
             xaxis="[{
                 'type': 'datetime'
             }]"
-            yaxis="[{}]"
+            yaxis="[{
+                'min': 0
+            }]"
             series="[{
                 'name': 'Reads'
             }, {
@@ -68,7 +70,9 @@
             xaxis="[{
                 'type': 'datetime'
             }]"
-            yaxis="[{}]"
+            yaxis="[{
+                'min': 0
+            }]"
             series="[{
                 'name': '1 min'
             }, {
