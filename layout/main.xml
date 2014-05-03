@@ -4,6 +4,8 @@
             <hc>
                 <pathbox id="logfile" value="" style="big" />
                 <button text="{Load}" icon="ok" style="mini" id="loadlog" />
+
+                <togglebutton text="{Live Stream}" icon="refresh" style="mini" id="livestream" />
             </hc>
         </formline>
         <chart

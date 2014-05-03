@@ -57,14 +57,24 @@ class ATop(SectionPlugin):
                 else:
                     sample.setdefault(name, {})[key] = point
 
+    def atop(self, logfile, *sections):
+        args = ['/usr/bin/atop', '-P', ','.join(sections)]
+        if logfile:
+            args.extend(('-r', logfile))
+
+        return Popen(args, stdout=PIPE)
+
     @on('loadlog', 'click')
     def loadlog(self):
+        if self._stream:
+            self.context.notify('info', 'Turn off live stream first')
+            return
+
         logfile = self.find('logfile').value
-        sections = ['CPU', 'DSK', 'CPL', 'NET']
-        atop = Popen(['/usr/bin/atop', '-r', logfile, '-P', ','.join(sections)], stdout=PIPE)
+        atop = self.atop(logfile, 'CPU', 'DSK', 'CPL', 'NET')
 
         try:
-            stats = self.parse_atop(atop.stdout.readlines())
+            stats = self.parse_atop(iter(atop.stdout.readline, ''))
             next(stats)
             self.stats = list(stats)
         except StopIteration:
@@ -83,3 +93,35 @@ class ATop(SectionPlugin):
         finally:
             self.binder.populate()
 
+    _stream = False
+    def worker(self):
+        atop = self.atop(None, 'CPU', 'DSK', 'CPL', 'NET')
+        samples = self.parse_atop(iter(atop.stdout.readline, ''))
+        next(samples)
+
+        for sample in samples:
+            if not self._stream:
+                break
+
+            self.stats.append(sample)
+            self.disk_stats.append(sample['DSK']['sda'])
+
+            if len(self.stats) > 144:
+                self.stats.pop(0)
+                self.disk_stats.pop(0)
+
+            self.binder.populate()
+
+        atop.kill()
+
+    @on('livestream', 'click')
+    def livestream(self):
+        self._stream = not self._stream
+
+        if self._stream:
+            self.stats = []
+            self.disk_stats = []
+
+            self.context.session.spawn(self.worker)
+
+        self.find('livestream').pressed = self._stream
