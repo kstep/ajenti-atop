@@ -1,9 +1,11 @@
 <body>
     <pad id="main">
-        <hc>
-            <pathbox id="logfile" value="" />
-            <button text="{Load}" icon="load" style="mini" id="loadlog" />
-        </hc>
+        <formline text="{Atop log file}">
+            <hc>
+                <pathbox id="logfile" value="" style="big" />
+                <button text="{Load}" icon="ok" style="mini" id="loadlog" />
+            </hc>
+        </formline>
         <chart
             title="CPU consumtion"
             xaxis="[{
