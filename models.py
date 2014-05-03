@@ -54,6 +54,11 @@ class CPU(ATOP):
             'pfreq': int,
             }
 
+class cpu(CPU):
+    @property
+    def key(self):
+        return self.ncpu
+
 class CPL(ATOP):
     _fields = ATOP._fields + ['nproc', 'la1', 'la5', 'la15', 'ctx', 'int']
     _casts = {
