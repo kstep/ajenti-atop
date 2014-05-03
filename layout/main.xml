@@ -32,6 +32,17 @@
                 s.wait * 1.0 / s.tps / s.ncpu
                 ])(s['CPU']), s)"
             />
+
+        <formline text="{Disk device}">
+            <hc>
+                <dropdown id="disk_name" bind:values="stats" bind:labels="stats"
+                    bindtransform="lambda s: list(reduce(
+                        lambda a, s: a.union(s),
+                        map(lambda s: s['DSK'].keys(), s),
+                        set()))" />
+                <button id="selectdisk" style="mini" icon="ok" text="{Select}" />
+            </hc>
+        </formline>
         <chart
             title="Disk operations"
             xaxis="[{
@@ -45,11 +56,11 @@
             }]"
             width="100%"
             height="300"
-            bind="stats"
-            bindtransform="lambda s: map(lambda s: (lambda s: [
+            bind="disk_stats"
+            bindtransform="lambda s: map(lambda s: [
                 s.epoch * 1000,
                 s.reads, s.writes
-                ])(s['DSK']['sda']), s)"
+                ], s)"
             />
         <chart
             type="spline"

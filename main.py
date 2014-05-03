@@ -28,6 +28,7 @@ class ATop(SectionPlugin):
         self.category = _('Software')
 
         self.stats = []
+        self.disk_stats = []
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
@@ -69,5 +70,16 @@ class ATop(SectionPlugin):
         except StopIteration:
             self.context.notify('error', 'Not enough atop data to load')
 
-        self.binder.populate()
+        else:
+            self.selectdisk()
+
+    @on('selectdisk', 'click')
+    def selectdisk(self):
+        try:
+            disk_name = self.find('disk_name').value
+            self.disk_stats = map(lambda s: s['DSK'][disk_name], self.stats)
+        except KeyError:
+            self.context.notify('info', 'Please select a disk to show stats')
+        finally:
+            self.binder.populate()
 
