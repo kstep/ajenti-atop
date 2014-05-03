@@ -60,7 +60,7 @@ class ATop(SectionPlugin):
     @on('loadlog', 'click')
     def loadlog(self):
         logfile = self.find('logfile').value
-        sections = ['CPU', 'DSK', 'CPL']
+        sections = ['CPU', 'DSK', 'CPL', 'NET']
         atop = Popen(['/usr/bin/atop', '-r', logfile, '-P', ','.join(sections)], stdout=PIPE)
 
         try:

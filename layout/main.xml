@@ -65,6 +65,28 @@
                 ], s)"
             />
         <chart
+            title="Network activity"
+            xaxis="[{
+                'type': 'datetime'
+                }]"
+            yaxis="[{
+                'min': 0
+                }]"
+            series="[{
+                'name': 'Send'
+            }, {
+                'name': 'Recv'
+            }]"
+            width="100%"
+            height="300"
+            bind="stats"
+            bindtransform="lambda s: map(lambda s: (lambda s: [
+                s.epoch * 1000,
+                s.tcpsnd + s.udpsnd + s.ipsnd,
+                s.tcprcv + s.udprcv + s.iprcv
+                ])(s['NET']), s)"
+            />
+        <chart
             type="spline"
             title="Load average"
             xaxis="[{
