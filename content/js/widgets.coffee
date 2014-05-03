@@ -27,11 +27,10 @@ class window.Controls.chart extends window.Control
         for point in @properties.data
             x = point[0]
             for j in [1..point.length] by 1
-                data[j-1] ||= []
-                data[j-1].push([x, point[j]])
+                (data[j-1] ||= []).push([x, point[j]])
 
         for serie, i in series
-            serie.setData(data[i])
+            serie.setData(data[i], false)
 
         @chart.redraw()
 
