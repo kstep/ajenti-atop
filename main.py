@@ -29,7 +29,7 @@ class ATop(SectionPlugin):
         self.icon = 'signal'
         self.category = _('Software')
 
-        self.stats = []
+        self.samples = []
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
@@ -67,6 +67,17 @@ class ATop(SectionPlugin):
 
         return Popen(args, stdout=PIPE)
 
+    def load_atop(self, logfile, sections, filter_=list):
+        atop = self.atop(logfile, *sections)
+
+        try:
+            samples = self.parse_atop(iter(atop.stdout.readline, ''))
+            next(samples)
+        except StopIteration:
+            return []
+
+        return filter_(samples)
+
     @on('loadlog', 'click')
     def loadlog(self):
         if self._stream:
@@ -74,32 +85,25 @@ class ATop(SectionPlugin):
             return
 
         logfile = self.find('logfile').value
-        atop = self.atop(logfile, *self.METRICS)
+        self.samples = self.load_atop(logfile, self.METRICS)
 
-        try:
-            stats = self.parse_atop(iter(atop.stdout.readline, ''))
-            next(stats)
-            self.stats = list(stats)
-        except StopIteration:
+        if not self.samples:
             self.context.notify('error', 'Not enough atop data to load')
 
-        else:
-            self.binder.populate()
+        self.binder.populate()
 
     _stream = False
     def worker(self):
-        atop = self.atop(None, *self.METRICS)
-        samples = self.parse_atop(iter(atop.stdout.readline, ''))
-        next(samples)
+        samples = self.load_atop(None, self.METRICS)
 
         for sample in samples:
             if not self._stream:
                 break
 
-            self.stats.append(sample)
+            self.samples.append(sample)
 
-            if len(self.stats) > 144:
-                self.stats.pop(0)
+            if len(self.samples) > 144:
+                self.samples.pop(0)
 
             self.binder.populate()
 
@@ -110,7 +114,7 @@ class ATop(SectionPlugin):
         self._stream = not self._stream
 
         if self._stream:
-            self.stats = []
+            self.samples = []
             self.context.session.spawn(self.worker)
 
         self.find('livestream').pressed = self._stream
