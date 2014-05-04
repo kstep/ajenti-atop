@@ -9,6 +9,7 @@
             </hc>
         </formline>
         <chart
+            type="spline"
             title="CPU consumtion"
             xaxis="[{
                 'type': 'datetime'
@@ -47,6 +48,7 @@
             <bind:template>
                 <tab bind:title="name">
                     <chart
+                        type="spline"
                         title="Disk operations"
                         xaxis="[{
                             'type': 'datetime'
@@ -71,6 +73,7 @@
             </bind:template>
         </bind:collection>
         <chart
+            type="spline"
             title="Memory consumtion"
             xaxis="[{
                 'type': 'datetime'
@@ -109,6 +112,7 @@
             <bind:template>
                 <tab bind:title="name">
                     <chart
+                        type="spline"
                         title="Network activity"
                         xaxis="[{
                             'type': 'datetime'
