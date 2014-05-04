@@ -182,7 +182,8 @@ class PROC(ATOP):
         return self.name
 
 class PRG(PROC):
-    _fields = PROC._fields + ['ruid', 'rgid', 'tgid', 'thrn', 'code', 'start', 'fname', 'ppid', 'thrr', 'thri', 'thru', 'euid', 'egid', 'suid', 'sgid', 'fuid', 'fgid', 'eta']
+    _fields = PROC._fields + ['ruid', 'rgid', 'tgid', 'thrn', 'code', 'start', 'fname', 'ppid', 'thrr',
+            'thri', 'thru', 'euid', 'egid', 'suid', 'sgid', 'fuid', 'fgid', 'eta', 'isproc']
     _casts = {
             'ruid': int,
             'rgid': int,
@@ -206,7 +207,7 @@ class PRG(PROC):
             }
 
 class PRC(PROC):
-    _fields = PROC._fields + ['tps', 'usr', 'sys', 'nice', 'pri', 'rtpri', 'sched', 'cpu', 'savg', 'tgid']
+    _fields = PROC._fields + ['tps', 'usr', 'sys', 'nice', 'pri', 'rtpri', 'sched', 'cpu', 'savg', 'tgid', 'isproc']
     _casts = {
             'tps': int,
             'usr': int,
@@ -222,7 +223,8 @@ class PRC(PROC):
             }
 
 class PRM(PROC):
-    _fields = PROC._fields + ['page', 'virt', 'rss', 'shrd', 'virtd', 'rssd', 'minflt', 'majflt', 'vlib', 'vdata', 'vstack', 'swap', 'tgid']
+    _fields = PROC._fields + ['page', 'virt', 'rss', 'shrd', 'virtd', 'rssd', 'minflt', 'majflt', 'vlib',
+            'vdata', 'vstack', 'swap', 'tgid', 'isproc']
     _casts = {
             'page': int,
             'virt': int,
@@ -241,7 +243,7 @@ class PRM(PROC):
             }
 
 class PRD(PROC):
-    _fields = ATOP._fields + ['okp', 'stdio', 'reads', 'sread', 'writes', 'swrite', 'cwrite', 'tgid']
+    _fields = PROC._fields + ['okp', 'stdio', 'reads', 'sread', 'writes', 'swrite', 'cwrite', 'tgid', 'isproc']
     _casts = {
             'okp': boolflag,
             'stdio': boolflag,
@@ -250,12 +252,13 @@ class PRD(PROC):
             'writes': int,
             'swrite': int,
             'cwrite': int,
-            'tgid': int,
+            'tgid': lambda v: int(v.rstrip('n')),
             'isproc': boolflag,
             }
 
 class PRN(PROC):
-    _fields = ATOP._fields + ['netatop', 'tcpsnd', 'ctcpsnd', 'tcprcv', 'ctcprcv', 'udpsnd', 'cudpsnd', 'udprcv', 'cudprcv', 'rawsnd', 'rawrcv', 'tgid']
+    _fields = PROC._fields + ['netatop', 'tcpsnd', 'ctcpsnd', 'tcprcv', 'ctcprcv', 'udpsnd', 'cudpsnd',
+            'udprcv', 'cudprcv', 'rawsnd', 'rawrcv', 'tgid', 'isproc']
     _casts = {
             'netatop': boolflag,
             'tcpsnd': int,
