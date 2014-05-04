@@ -37,12 +37,12 @@
             />
 
         <bind:collection bind="samples" values="
-            lambda samples: map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
+            lambda samples: sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
                 reduce(
                     lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
                     map(lambda sample: sample['DSK'], samples),
                     dict()
-                ).iteritems())
+                ).iteritems()))
                 ">
             <tabs bind="__items"></tabs>
             <bind:template>
