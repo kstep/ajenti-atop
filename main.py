@@ -55,6 +55,8 @@ class ATop(SectionPlugin):
                 name, key = point.__class__.__name__, point.key
                 if key is None:
                     sample[name] = point
+                elif point._multikey:
+                    sample.setdefault(name, {}).setdefault(key, []).append(point)
                 else:
                     sample.setdefault(name, {})[key] = point
 

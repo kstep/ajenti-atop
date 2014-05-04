@@ -35,6 +35,7 @@ class ATOP(Model):
             self = Model.__metaclass__.__call__(data_cls, data)
             return self
 
+    _multikey = False
     @property
     def key(self):
         return None
@@ -175,9 +176,10 @@ class PROC(ATOP):
             'state': str,
             }
 
+    _multikey = True
     @property
     def key(self):
-        return self.pid
+        return self.name
 
 class PRG(PROC):
     _fields = PROC._fields + ['ruid', 'rgid', 'tgid', 'thrn', 'code', 'start', 'fname', 'ppid', 'thrr', 'thri', 'thru', 'euid', 'egid', 'suid', 'sgid', 'fuid', 'fgid', 'eta']
