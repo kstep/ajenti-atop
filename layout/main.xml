@@ -10,7 +10,7 @@
         </formline>
         <chart
             type="spline"
-            title="CPU consumtion"
+            title="CPU usage"
             xaxis="[{
                 'type': 'datetime'
             }]"
@@ -73,7 +73,7 @@
         </bind:collection>
         <chart
             type="spline"
-            title="Memory consumtion"
+            title="Memory usage"
             xaxis="[{
                 'type': 'datetime'
                 }]"
