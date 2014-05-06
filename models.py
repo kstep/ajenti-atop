@@ -1,11 +1,11 @@
 from ajenti.plugins.models.api import *  # noqa
 from itertools import izip
 
-brackets = lambda n: str(n)[1:-1]
 boolflag = lambda y: y == 'y'
 
 class ATOP(Model):
     _fields = ['host', 'epoch', 'date', 'time', 'interval']
+    _bracket_groups = ()
     _casts = {
             'host': str,
             'epoch': int,
@@ -31,6 +31,15 @@ class ATOP(Model):
                 return None
 
             data_cls = cls._labels[label].delegate(parts)
+
+            for group in data_cls._bracket_groups:
+                if parts[group].startswith('(') and not parts[group].endswith(')'):
+                    end = group + 1
+                    while not parts[end].endswith(')'):
+                        end += 1
+                    end += 1
+                    parts[group:end] = ' '.join(parts[group:end])[1:-1],
+
             data = izip(data_cls._fields, parts)
             self = Model.__metaclass__.__call__(data_cls, data)
             return self
@@ -170,9 +179,10 @@ class net(ATOP):
 
 class PROC(ATOP):
     _fields = ATOP._fields + ['pid', 'name', 'state']
+    _bracket_groups = (6,)
     _casts = {
             'pid': int,
-            'name': brackets,
+            'name': str,
             'state': str,
             }
 
@@ -184,6 +194,7 @@ class PROC(ATOP):
 class PRG(PROC):
     _fields = PROC._fields + ['ruid', 'rgid', 'tgid', 'thrn', 'code', 'start', 'fname', 'ppid', 'thrr',
             'thri', 'thru', 'euid', 'egid', 'suid', 'sgid', 'fuid', 'fgid', 'eta', 'isproc']
+    _bracket_groups = (6, 13)
     _casts = {
             'ruid': int,
             'rgid': int,
@@ -191,7 +202,7 @@ class PRG(PROC):
             'thrn': int,
             'code': int,
             'start': unixtime,
-            'fname': brackets,
+            'fname': str,
             'ppid': int,
             'thrr': int,
             'thri': int,
