@@ -41,7 +41,7 @@
                     lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
                     map(lambda sample: sample.get('DSK', {}), samples),
                     dict()
-                ).iteritems()))
+                ).iteritems()), key=lambda p: p.name)
                 ">
             <tabs bind="__items"></tabs>
             <bind:template>
@@ -105,7 +105,7 @@
                         lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
                         map(lambda sample: sample.get('net', {}), samples),
                         dict()
-                    ).iteritems()))
+                    ).iteritems()), key=lambda p: p.name)
                 ">
             <tabs bind="__items"></tabs>
             <bind:template>
