@@ -39,7 +39,7 @@ class ATop(SectionPlugin):
         self.loadlog()
 
     @staticmethod
-    def parse_atop(lines):
+    def parse_atop(lines, filter_=lambda line: True):
         sample = {}
 
         for line in lines:
@@ -50,7 +50,7 @@ class ATop(SectionPlugin):
                 yield sample
                 sample = {}
 
-            else:
+            elif filter_(line):
                 point = ATOP(line)
                 name, key = point.__class__.__name__, point.key
                 if key is None:
