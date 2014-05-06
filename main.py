@@ -22,7 +22,11 @@ class Chart(UIElement):
 
 @plugin
 class ATop(SectionPlugin):
-    METRICS = ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP']
+    METRICS = (
+        ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP'],
+        ['PRC'],
+        )
+    MODE = 0
 
     def init(self):
         self.title = 'ATop'
@@ -71,7 +75,7 @@ class ATop(SectionPlugin):
         atop = self.atop(logfile, *sections)
 
         try:
-            samples = self.parse_atop(iter(atop.stdout.readline, ''))
+            samples = self.parse_atop(iter(atop.stdout.readline, ''), lambda line: '(systemd)' in line)
             next(samples)
         except StopIteration:
             return []
@@ -85,7 +89,7 @@ class ATop(SectionPlugin):
             return
 
         logfile = self.find('logfile').value
-        self.samples = self.load_atop(logfile, self.METRICS)
+        self.samples = self.load_atop(logfile, self.METRICS[self.MODE])
 
         if not self.samples:
             self.context.notify('error', 'Not enough atop data to load')
@@ -94,7 +98,7 @@ class ATop(SectionPlugin):
 
     _stream = False
     def worker(self):
-        samples = self.load_atop(None, self.METRICS)
+        samples = self.load_atop(None, self.METRICS[self.MODE])
 
         for sample in samples:
             if not self._stream:
@@ -118,3 +122,10 @@ class ATop(SectionPlugin):
             self.context.session.spawn(self.worker)
 
         self.find('livestream').pressed = self._stream
+
+    @on('modes', 'switch')
+    def switch_mode(self):
+        self.MODE = self.find('modes').active
+        print ('MODE', self.MODE)
+        self.loadlog()
+
