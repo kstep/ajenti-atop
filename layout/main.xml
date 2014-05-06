@@ -32,14 +32,14 @@
                 s.sys * 1.0 / s.tps / s.ncpu,
                 s.usr * 1.0 / s.tps / s.ncpu,
                 s.wait * 1.0 / s.tps / s.ncpu
-                ])(s['CPU']), s)"
+                ])(s.get('CPU', [])), s)"
             />
 
         <bind:collection bind="samples" values="
             lambda samples: sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
                 reduce(
                     lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
-                    map(lambda sample: sample['DSK'], samples),
+                    map(lambda sample: sample.get('DSK', {}), samples),
                     dict()
                 ).iteritems()))
                 ">
@@ -92,18 +92,18 @@
                 s.epoch * 1000,
                 m.page * (m.phys - m.free - m.cache - m.buffer),
                 s.page * (s.swap - s.free)
-                ])(s['MEM'], s['SWP']), s)"
+                ])(s.get('MEM', []), s.get('SWP', [])), s)"
             />
 
         <bind:collection bind="samples" values="
             lambda samples: [type('point', (), {
                     'name': 'upper',
-                    'samples': map(lambda s: s['NET'], samples)
+                    'samples': map(lambda s: s.get('NET', []), samples)
                 })] +
                 sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
                     reduce(
                         lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
-                        map(lambda sample: sample['net'], samples),
+                        map(lambda sample: sample.get('net', {}), samples),
                         dict()
                     ).iteritems()))
                 ">
@@ -159,7 +159,7 @@
             bindtransform="lambda s: map(lambda s: (lambda s: [
                 s.epoch * 1000,
                 s.la1, s.la5, s.la15
-                ])(s['CPL']), s)"
+                ])(s.get('CPL', [])), s)"
             />
     </pad>
 </body>
