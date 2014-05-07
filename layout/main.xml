@@ -194,12 +194,12 @@
                     }]"
                     width="100%"
                     height="300"
-                    bind="samples"
+                    bind="process_samples"
                     bindtransform="lambda s: map(lambda s: (lambda s: [
                         s[0].epoch * 1000,
                         sum(map(lambda s: s.sys, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
                         sum(map(lambda s: s.usr, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
-                        ] if s else [])(s['PRC'].get('systemd')), s)"
+                        ] if s else [])(s.get('PRC')), s)"
                     />
 
                 <chart
@@ -218,12 +218,12 @@
                     }]"
                     width="100%"
                     height="300"
-                    bind="samples"
+                    bind="process_samples"
                     bindtransform="lambda s: map(lambda s: (lambda s: [
                         s[0].epoch * 1000,
                         sum(map(lambda s: s.reads, s)),
                         sum(map(lambda s: s.writes, s))
-                        ] if s else [])(s['PRD'].get('systemd')), s)"
+                        ] if s else [])(s.get('PRD')), s)"
                     />
 
                 <chart
@@ -244,13 +244,13 @@
                     }]"
                     width="100%"
                     height="300"
-                    bind="samples"
+                    bind="process_samples"
                     bindtransform="lambda s: map(lambda s: (lambda s: [
                         s[0].epoch * 1000,
                         sum(map(lambda s: 1024 * s.virt, s)),
                         sum(map(lambda s: 1024 * s.rss, s)),
                         sum(map(lambda s: 1024 * s.swap, s)),
-                        ] if s else [])(s['PRM'].get('systemd', [])), s)"
+                        ] if s else [])(s.get('PRM')), s)"
                     />
 
                 <chart
@@ -269,12 +269,12 @@
                     }]"
                     width="100%"
                     height="300"
-                    bind="samples"
+                    bind="process_samples"
                     bindtransform="lambda s: map(lambda s: (lambda s: [
                         s[0].epoch * 1000,
                         sum(map(lambda s: s.tcpsnd + s.udpsnd, s)),
                         sum(map(lambda s: s.tcprcv + s.udprcv, s))
-                        ] if s else [])(s['PRN'].get('systemd')), s)"
+                        ] if s else [])(s.get('PRN')), s)"
                     />
 
                 <chart

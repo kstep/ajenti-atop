@@ -34,6 +34,7 @@ class ATop(SectionPlugin):
         self.category = _('Software')
 
         self.samples = []
+        self.process_samples = []
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
@@ -133,8 +134,8 @@ class ATop(SectionPlugin):
 
     @on('filterprocess', 'click')
     def filterprocess(self):
-        process = self.process #= self.find('process').value
-        self.samples = map(
+        process = self.find('process').value
+        self.process_samples = map(
             lambda sample: dict((k, v[process]) for k, v in sample.iteritems() if process in v),
             self.samples)
         self.binders[self.MODE].populate()
