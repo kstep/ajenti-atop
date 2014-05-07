@@ -247,9 +247,9 @@
                     bind="process_samples"
                     bindtransform="lambda s: map(lambda s: (lambda s: [
                         s[0].epoch * 1000,
-                        sum(map(lambda s: 1024 * s.virt, s)),
-                        sum(map(lambda s: 1024 * s.rss, s)),
-                        sum(map(lambda s: 1024 * s.swap, s)),
+                        max(map(lambda s: 1024 * s.virt, s)),
+                        max(map(lambda s: 1024 * s.rss, s)),
+                        max(map(lambda s: 1024 * s.swap, s)),
                         ] if s else [])(s.get('PRM')), s)"
                     />
 
