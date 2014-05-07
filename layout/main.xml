@@ -8,158 +8,318 @@
                 <togglebutton text="{Live Stream}" icon="refresh" style="mini" id="livestream" />
             </hc>
         </formline>
-        <chart
-            type="spline"
-            title="CPU usage"
-            xaxis="[{
-                'type': 'datetime'
-            }]"
-            yaxis="[{
-                'min': 0
-            }]"
-            series="[{
-                'name': 'Sys'
-            }, {
-                'name': 'User'
-            }, {
-                'name': 'Wait'
-            }]"
-            width="100%"
-            height="300"
-            bind="samples"
-            bindtransform="lambda s: map(lambda s: (lambda s: [
-                s.epoch * 1000,
-                s.sys * 1.0 / s.tps / s.ncpu,
-                s.usr * 1.0 / s.tps / s.ncpu,
-                s.wait * 1.0 / s.tps / s.ncpu
-                ])(s.get('CPU', [])), s)"
-            />
+        <tabs id="modes">
+            <tab title="System" id="system_charts">
+                <chart
+                    type="spline"
+                    title="CPU usage"
+                    xaxis="[{
+                        'type': 'datetime'
+                    }]"
+                    yaxis="[{
+                        'min': 0
+                    }]"
+                    series="[{
+                        'name': 'Sys'
+                    }, {
+                        'name': 'User'
+                    }, {
+                        'name': 'Wait'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s.epoch * 1000,
+                        s.sys * 1.0 / s.tps / s.ncpu,
+                        s.usr * 1.0 / s.tps / s.ncpu,
+                        s.wait * 1.0 / s.tps / s.ncpu
+                        ])(s['CPU']), s)"
+                    />
 
-        <bind:collection bind="samples" values="
-            lambda samples: sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
-                reduce(
-                    lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
-                    map(lambda sample: sample.get('DSK', {}), samples),
-                    dict()
-                ).iteritems()), key=lambda p: p.name)
-                ">
-            <tabs bind="__items"></tabs>
-            <bind:template>
-                <tab bind:title="name">
-                    <chart
-                        type="spline"
-                        title="Disk operations"
-                        xaxis="[{
-                            'type': 'datetime'
+                <bind:collection bind="samples" values="
+                    lambda samples: sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
+                        reduce(
+                            lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
+                            map(lambda sample: sample.get('DSK', {}), samples),
+                            dict()
+                        ).iteritems()))
+                        ">
+                    <tabs bind="__items"></tabs>
+                    <bind:template>
+                        <tab bind:title="name">
+                            <chart
+                                type="spline"
+                                title="Disk operations"
+                                xaxis="[{
+                                    'type': 'datetime'
+                                }]"
+                                yaxis="[{
+                                    'min': 0
+                                }]"
+                                series="[{
+                                    'name': 'Reads'
+                                }, {
+                                    'name': 'Writes'
+                                }]"
+                                width="100%"
+                                height="300"
+                                bind="samples"
+                                bindtransform="lambda s: map(lambda s: [
+                                    s.epoch * 1000,
+                                    s.reads, s.writes
+                                    ], s)"
+                                />
+                        </tab>
+                    </bind:template>
+                </bind:collection>
+                <chart
+                    type="spline"
+                    title="Memory usage"
+                    xaxis="[{
+                        'type': 'datetime'
                         }]"
-                        yaxis="[{
-                            'min': 0
+                    yaxis="[{
+                        'min': 0
                         }]"
-                        series="[{
-                            'name': 'Reads'
-                        }, {
-                            'name': 'Writes'
-                        }]"
-                        width="100%"
-                        height="300"
-                        bind="samples"
-                        bindtransform="lambda s: map(lambda s: [
-                            s.epoch * 1000,
-                            s.reads, s.writes
-                            ], s)"
-                        />
-                </tab>
-            </bind:template>
-        </bind:collection>
-        <chart
-            type="spline"
-            title="Memory usage"
-            xaxis="[{
-                'type': 'datetime'
-                }]"
-            yaxis="[{
-                'min': 0
-                }]"
-            series="[{
-                'name': 'Memory'
-            }, {
-                'name': 'Swap'
-            }]"
-            width="100%"
-            height="300"
-            bind="samples"
-            bindtransform="lambda s: map(lambda s: (lambda m, s: [
-                s.epoch * 1000,
-                m.page * (m.phys - m.free - m.cache - m.buffer),
-                s.page * (s.swap - s.free)
-                ])(s.get('MEM', []), s.get('SWP', [])), s)"
-            />
+                    series="[{
+                        'name': 'Memory'
+                    }, {
+                        'name': 'Swap'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="samples"
+                    bindtransform="lambda s: map(lambda s: (lambda m, s: [
+                        s.epoch * 1000,
+                        m.page * (m.phys - m.free - m.cache - m.buffer),
+                        s.page * (s.swap - s.free)
+                        ])(s.get('MEM', []), s.get('SWP', [])), s)"
+                    />
 
-        <bind:collection bind="samples" values="
-            lambda samples: [type('point', (), {
-                    'name': 'upper',
-                    'samples': map(lambda s: s.get('NET', []), samples)
-                })] +
-                sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
-                    reduce(
-                        lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
-                        map(lambda sample: sample.get('net', {}), samples),
-                        dict()
-                    ).iteritems()), key=lambda p: p.name)
-                ">
-            <tabs bind="__items"></tabs>
-            <bind:template>
-                <tab bind:title="name">
-                    <chart
-                        type="spline"
-                        title="Network activity"
-                        xaxis="[{
-                            'type': 'datetime'
-                            }]"
-                        yaxis="[{
-                            'min': 0
-                            }]"
-                        series="[{
-                            'name': 'Send'
-                        }, {
-                            'name': 'Recv'
-                        }]"
-                        width="100%"
-                        height="300"
-                        bind="samples"
-                        bindtransform="lambda s: map(lambda s: [
-                            s.epoch * 1000,
-                            s.psnd if 'psnd' in s else (s.tcpsnd + s.udpsnd + s.ipsnd),
-                            s.prcv if 'prcv' in s else (s.tcprcv + s.udprcv + s.iprcv)
-                            ], s)"
-                        />
-                </tab>
-            </bind:template>
-        </bind:collection>
+                <bind:collection bind="samples" values="
+                    lambda samples: [type('point', (), {
+                            'name': 'upper',
+                            'samples': map(lambda s: s.get('NET', []), samples)
+                        })] +
+                        sorted(map(lambda kv: type('point', (), {'name': kv[0], 'samples': kv[1]}),
+                            reduce(
+                                lambda a, s: filter(lambda kv: a.setdefault(kv[0], []).append(kv[1]), s.iteritems()) or a,
+                                map(lambda sample: sample.get('net', {}), samples),
+                                dict()
+                            ).iteritems()))
+                        ">
+                    <tabs bind="__items"></tabs>
+                    <bind:template>
+                        <tab bind:title="name">
+                            <chart
+                                type="spline"
+                                title="Network activity"
+                                xaxis="[{
+                                    'type': 'datetime'
+                                    }]"
+                                yaxis="[{
+                                    'min': 0
+                                    }]"
+                                series="[{
+                                    'name': 'Send'
+                                }, {
+                                    'name': 'Recv'
+                                }]"
+                                width="100%"
+                                height="300"
+                                bind="samples"
+                                bindtransform="lambda s: map(lambda s: [
+                                    s.epoch * 1000,
+                                    s.psnd if 'psnd' in s else (s.tcpsnd + s.udpsnd + s.ipsnd),
+                                    s.prcv if 'prcv' in s else (s.tcprcv + s.udprcv + s.iprcv)
+                                    ], s)"
+                                />
+                        </tab>
+                    </bind:template>
+                </bind:collection>
 
-        <chart
-            type="spline"
-            title="Load average"
-            xaxis="[{
-                'type': 'datetime'
-            }]"
-            yaxis="[{
-                'min': 0
-            }]"
-            series="[{
-                'name': '1 min'
-            }, {
-                'name': '5 min'
-            }, {
-                'name': '15 min'
-            }]"
-            width="100%"
-            height="300"
-            bind="samples"
-            bindtransform="lambda s: map(lambda s: (lambda s: [
-                s.epoch * 1000,
-                s.la1, s.la5, s.la15
-                ])(s.get('CPL', [])), s)"
-            />
+                <chart
+                    type="spline"
+                    title="Load average"
+                    xaxis="[{
+                        'type': 'datetime'
+                    }]"
+                    yaxis="[{
+                        'min': 0
+                    }]"
+                    series="[{
+                        'name': '1 min'
+                    }, {
+                        'name': '5 min'
+                    }, {
+                        'name': '15 min'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s.epoch * 1000,
+                        s.la1, s.la5, s.la15
+                        ])(s.get('CPL', [])), s)"
+                    />
+            </tab>
+
+            <tab title="Processes" id="process_charts">
+                <formline text="{Process}">
+                    <hc>
+                        <dropdown id="process"
+                            bind:labels="samples" bind:values="samples"
+                            bindtransform="lambda samples: sorted(reduce(
+                            lambda acc, sample: acc.update(sample['PRC'].keys()) or acc,
+                            samples, set()))"
+                            />
+                        <button text="{Filter}" icon="filter" style="mini" id="filterprocess" />
+                    </hc>
+                </formline>
+
+                <chart
+                    type="spline"
+                    title="CPU usage"
+                    xaxis="[{
+                        'type': 'datetime'
+                    }]"
+                    yaxis="[{
+                        'min': 0
+                    }]"
+                    series="[{
+                        'name': 'Sys'
+                    }, {
+                        'name': 'User'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="process_samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s[0].epoch * 1000,
+                        sum(map(lambda s: s.sys, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
+                        sum(map(lambda s: s.usr, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
+                        ] if s else [])(s.get('PRC')), s)"
+                    />
+
+                <chart
+                    type="spline"
+                    title="Disk operations"
+                    xaxis="[{
+                        'type': 'datetime'
+                    }]"
+                    yaxis="[{
+                        'min': 0
+                    }]"
+                    series="[{
+                        'name': 'Reads'
+                    }, {
+                        'name': 'Writes'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="process_samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s[0].epoch * 1000,
+                        sum(map(lambda s: s.reads, s)),
+                        sum(map(lambda s: s.writes, s))
+                        ] if s else [])(s.get('PRD')), s)"
+                    />
+
+                <chart
+                    type="spline"
+                    title="Memory usage"
+                    xaxis="[{
+                        'type': 'datetime'
+                        }]"
+                    yaxis="[{
+                        'min': 0
+                        }]"
+                    series="[{
+                        'name': 'Total'
+                    }, {
+                        'name': 'RSS'
+                    }, {
+                        'name': 'Swap'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="process_samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s[0].epoch * 1000,
+                        max(map(lambda s: 1024 * s.virt, s)),
+                        max(map(lambda s: 1024 * s.rss, s)),
+                        max(map(lambda s: 1024 * s.swap, s)),
+                        ] if s else [])(s.get('PRM')), s)"
+                    />
+
+                <chart
+                    type="spline"
+                    title="Network activity"
+                    xaxis="[{
+                        'type': 'datetime'
+                        }]"
+                    yaxis="[{
+                        'min': 0
+                        }]"
+                    series="[{
+                        'name': 'Send'
+                    }, {
+                        'name': 'Recv'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="process_samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s[0].epoch * 1000,
+                        sum(map(lambda s: s.tcpsnd + s.udpsnd, s)),
+                        sum(map(lambda s: s.tcprcv + s.udprcv, s))
+                        ] if s else [])(s.get('PRN')), s)"
+                    />
+
+                <chart
+                    type="pie"
+                    title="Total CPU usage"
+                    series="[{
+                        'type': 'pie',
+                        'name': 'CPU shares'
+                        }]"
+                    bind="samples"
+                    bindtransform="lambda samples: reduce(
+                    lambda a, s: dict(map(lambda kv: (kv[0],
+                        a.get(kv[0], 0) + sum(map(lambda v: v.usr + v.sys, kv[1]))),
+                    s['PRC'].items())),
+                    samples, {}).items()"
+                    />
+                <chart
+                    type="pie"
+                    title="Total RAM usage"
+                    series="[{
+                        'type': 'pie',
+                        'name': 'Memory usage'
+                        }]"
+                    bind="samples"
+                    bindtransform="lambda samples: reduce(
+                    lambda a, s: dict(map(lambda kv: (kv[0],
+                        max(a.get(kv[0], 0), sum(map(lambda v: v.virt, kv[1])))),
+                    s['PRM'].items())),
+                    samples, {}).items()"
+                    />
+                <chart
+                    type="pie"
+                    title="Total network usage"
+                    series="[{
+                        'type': 'pie',
+                        'name': 'Network usage'
+                        }]"
+                    bind="samples"
+                    bindtransform="lambda samples: reduce(
+                    lambda a, s: dict(map(lambda kv: (kv[0],
+                        a.get(kv[0], 0) + sum(map(lambda v: v.udpsnd + v.udprcv + v.tcpsnd + v.tcprcv, kv[1]))),
+                    s['PRN'].items())),
+                    samples, {}).items()"
+                    />
+            </tab>
+        </tabs>
     </pad>
 </body>

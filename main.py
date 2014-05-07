@@ -22,7 +22,11 @@ class Chart(UIElement):
 
 @plugin
 class ATop(SectionPlugin):
-    METRICS = ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP']
+    METRICS = (
+        ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP'],
+        ['PRC', 'PRD', 'PRM', 'PRN'],
+        )
+    MODE = 0
 
     def init(self):
         self.title = 'ATop'
@@ -30,12 +34,14 @@ class ATop(SectionPlugin):
         self.category = _('Software')
 
         self.samples = []
+        self.process_samples = []
 
         self.append(self.ui.inflate('atop:main'))
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
 
     def on_first_page_load(self):
-        self.binder = Binder(self, self.find('main'))
+        self.binders = (Binder(self, self.find('system_charts')),
+                        Binder(self, self.find('process_charts')))
         self.loadlog()
 
     @staticmethod
@@ -85,16 +91,17 @@ class ATop(SectionPlugin):
             return
 
         logfile = self.find('logfile').value
-        self.samples = self.load_atop(logfile, self.METRICS)
+        self.process = 'systemd'
+        self.samples = self.load_atop(logfile, self.METRICS[self.MODE])
 
         if not self.samples:
             self.context.notify('error', 'Not enough atop data to load')
 
-        self.binder.populate()
+        self.binders[self.MODE].populate()
 
     _stream = False
     def worker(self):
-        samples = self.load_atop(None, self.METRICS)
+        samples = self.load_atop(None, self.METRICS[self.MODE])
 
         for sample in samples:
             if not self._stream:
@@ -105,7 +112,7 @@ class ATop(SectionPlugin):
             if len(self.samples) > 144:
                 self.samples.pop(0)
 
-            self.binder.populate()
+            self.binders[self.MODE].populate()
 
         atop.kill()
 
@@ -118,3 +125,17 @@ class ATop(SectionPlugin):
             self.context.session.spawn(self.worker)
 
         self.find('livestream').pressed = self._stream
+
+    @on('modes', 'switch')
+    def switch_mode(self):
+        self.MODE = self.find('modes').active
+        self.loadlog()
+
+    @on('filterprocess', 'click')
+    def filterprocess(self):
+        process = self.find('process').value
+        self.process_samples = map(
+            lambda sample: dict((k, v[process]) for k, v in sample.iteritems() if process in v),
+            self.samples)
+        self.binders[self.MODE].populate()
+
