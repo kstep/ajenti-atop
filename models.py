@@ -33,12 +33,15 @@ class ATOP(Model):
             data_cls = cls._labels[label].delegate(parts)
 
             for group in data_cls._bracket_groups:
-                if parts[group].startswith('(') and not parts[group].endswith(')'):
-                    end = group + 1
-                    while not parts[end].endswith(')'):
+                if parts[group].startswith('('):
+                    if not parts[group].endswith(')'):
+                        end = group + 1
+                        while not parts[end].endswith(')'):
+                            end += 1
                         end += 1
-                    end += 1
-                    parts[group:end] = ' '.join(parts[group:end])[1:-1],
+                        parts[group:end] = ' '.join(parts[group:end])[1:-1],
+                    else:
+                        parts[group] = parts[group][1:-1]
 
             data = izip(data_cls._fields, parts)
             self = Model.__metaclass__.__call__(data_cls, data)
