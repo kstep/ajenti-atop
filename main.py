@@ -24,7 +24,7 @@ class Chart(UIElement):
 class ATop(SectionPlugin):
     METRICS = (
         ['CPU', 'DSK', 'CPL', 'NET', 'MEM', 'SWP'],
-        ['PRC'],
+        ['PRC', 'PRD', 'PRM', 'PRN'],
         )
     MODE = 0
 
