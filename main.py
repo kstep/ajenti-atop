@@ -129,7 +129,6 @@ class ATop(SectionPlugin):
     @on('modes', 'switch')
     def switch_mode(self):
         self.MODE = self.find('modes').active
-        print ('MODE', self.MODE)
         self.loadlog()
 
     @on('filterprocess', 'click')
