@@ -1,6 +1,6 @@
 <body>
     <pad id="main">
-        <formline text="{Atop log file}">
+        <formline text="{ATop log file}">
             <hc>
                 <pathbox id="logfile" value="" style="big" />
                 <button text="{Load}" icon="ok" style="mini" id="loadlog" />
