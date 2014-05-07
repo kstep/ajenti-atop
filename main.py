@@ -39,7 +39,8 @@ class ATop(SectionPlugin):
         self.find('logfile').value = '/var/log/atop/atop_%s' % datetime.now().strftime('%Y%m%d')
 
     def on_first_page_load(self):
-        self.binder = Binder(self, self.find('main'))
+        self.binders = (Binder(self, self.find('system_charts')),
+                        Binder(self, self.find('process_charts')))
         self.loadlog()
 
     @staticmethod
@@ -75,7 +76,7 @@ class ATop(SectionPlugin):
         atop = self.atop(logfile, *sections)
 
         try:
-            samples = self.parse_atop(iter(atop.stdout.readline, ''), lambda line: '(systemd)' in line)
+            samples = self.parse_atop(iter(atop.stdout.readline, ''))
             next(samples)
         except StopIteration:
             return []
@@ -89,12 +90,13 @@ class ATop(SectionPlugin):
             return
 
         logfile = self.find('logfile').value
+        self.process = 'systemd'
         self.samples = self.load_atop(logfile, self.METRICS[self.MODE])
 
         if not self.samples:
             self.context.notify('error', 'Not enough atop data to load')
 
-        self.binder.populate()
+        self.binders[self.MODE].populate()
 
     _stream = False
     def worker(self):
@@ -109,7 +111,7 @@ class ATop(SectionPlugin):
             if len(self.samples) > 144:
                 self.samples.pop(0)
 
-            self.binder.populate()
+            self.binders[self.MODE].populate()
 
         atop.kill()
 
@@ -128,4 +130,12 @@ class ATop(SectionPlugin):
         self.MODE = self.find('modes').active
         print ('MODE', self.MODE)
         self.loadlog()
+
+    @on('filterprocess', 'click')
+    def filterprocess(self):
+        process = self.process #= self.find('process').value
+        self.samples = map(
+            lambda sample: dict((k, v[process]) for k, v in sample.iteritems() if process in v),
+            self.samples)
+        self.binders[self.MODE].populate()
 

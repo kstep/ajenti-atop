@@ -9,7 +9,7 @@
             </hc>
         </formline>
         <tabs id="modes">
-            <tab title="System">
+            <tab title="System" id="system_charts">
                 <chart
                     type="spline"
                     title="CPU usage"
@@ -165,7 +165,42 @@
                     />
             </tab>
 
-            <tab title="Processes">
+            <tab title="Processes" id="process_charts">
+                <formline text="{Process}">
+                    <hc>
+                        <dropdown id="process"
+                            bind:labels="samples" bind:values="samples"
+                            bindtransform="lambda samples: sorted(reduce(
+                            lambda acc, sample: acc.update(sample['PRC'].keys()) or acc,
+                            samples, set()))"
+                            />
+                        <button text="{Filter}" icon="filter" style="mini" id="filterprocess" />
+                    </hc>
+                </formline>
+
+                <chart
+                    type="spline"
+                    title="CPU usage"
+                    xaxis="[{
+                        'type': 'datetime'
+                    }]"
+                    yaxis="[{
+                        'min': 0
+                    }]"
+                    series="[{
+                        'name': 'Sys'
+                    }, {
+                        'name': 'User'
+                    }]"
+                    width="100%"
+                    height="300"
+                    bind="samples"
+                    bindtransform="lambda s: map(lambda s: (lambda s: [
+                        s[0].epoch * 1000,
+                        sum(map(lambda s: s.sys, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
+                        sum(map(lambda s: s.usr, s)) * 1.0 / sum(map(lambda s: s.tps, s)),
+                        ] if s else [])(s['PRC']), s)"
+                    />
             </tab>
         </tabs>
     </pad>
