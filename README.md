@@ -6,7 +6,7 @@ It also requires [models][] Ajenti plugin.
 Install **models** plugin into `/var/lib/ajenti/plugins` along with this plugin and restart **Ajenti**:
 
 ```
-# git clone https://github.com/kstep/ajenti-models.git /var/lib/ajenti/plugins
+# git clone https://github.com/kstep/ajenti-models.git /var/lib/ajenti/plugins/models
 # git clone https://github.com/kstep/ajenti-atop.git /var/lib/ajenti/plugins/atop
 # service restart ajenti
 ```
